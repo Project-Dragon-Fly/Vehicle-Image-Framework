@@ -1,0 +1,50 @@
+{
+  "children": [
+  {
+    "children": [
+    {
+      "children": [
+      {
+        "name": "Tata Nexon",
+        "type": "url",
+        "url": ""
+      },
+      {
+        "name": "Land Rover Range Rover Evoque",
+        "type": "url",
+        "url": ""
+      },
+      {
+        "name": "Car2",
+        "type": "url",
+        "url": ""
+      }],
+      "name": "SUV",
+      "type": "folder"
+    },
+    {
+      "children": [
+      {
+        "name": "Koenigsegg Agera RS",
+        "type": "url",
+        "url": ""
+      },
+      {
+        "name": "Lamborghini SCV12",
+        "type": "url",
+        "url": ""
+      }],
+      "name": "HyperCars",
+      "type": "folder"
+    }],
+    "name": "Car",
+    "type": "folder"
+  },
+  {
+    "children": [],
+    "name": "Bus",
+    "type": "folder"
+  }],
+  "name": "Vehicles",
+  "type": "folder"
+}
