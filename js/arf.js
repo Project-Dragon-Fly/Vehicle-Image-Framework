@@ -14,21 +14,13 @@ var diagonal = d3.svg.diagonal()
 var vis = d3.select("#body").append("svg:svg")
     .attr("width", width + margin[1] + margin[3])
     .attr("height", height + margin[0] + margin[2])
-  .append("svg:g")
+    .append("svg:g")
     .attr("transform", "translate(" + margin[3] + "," + margin[0] + ")");
 
 d3.json("arf.json", function(json) {
   root = json;
   root.x0 = height / 2;
   root.y0 = 0;
-
-  function collapse(d) {
-    if (d.children) {
-      d._children = d.children;
-      d._children.forEach(collapse);
-      d.children = null;
-    }
-  }
 
 /*  function toggleAll(d) {
     if (d.children) {
@@ -57,7 +49,7 @@ function update(source) {
   var nodeEnter = node.enter().append("svg:g")
       .attr("class", "node")
       .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-      .on("click", function(d) { toggle(d); update(d); });
+      .on("click", function(d) { toggle(d);});
 
   nodeEnter.append("svg:circle")
       .attr("r", 1e-6)
@@ -68,16 +60,11 @@ function update(source) {
       .attr('xlink:href', function(d) { return d.url; })
       .append("svg:text")
       .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-      .attr("dy", ".35em")
+      .attr("dy", ".5em")
       .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
       .text(function(d) { return d.name; })
       .style("fill: rgb(0, 0, 0)", function(d) { return d.free ? 'black' : '#999'; })
       .style("fill-opacity", 1e-6);
-
-  nodeEnter.append("svg:title")
-    .text(function(d) {
-      return d.description;
-    });
 
   // Transition nodes to their new position.
   var nodeUpdate = node.transition()
@@ -114,6 +101,7 @@ function update(source) {
         var o = {x: source.x0, y: source.y0};
         return diagonal({source: o, target: o});
       })
+    .style('stroke',"black")
     .transition()
       .duration(duration)
       .attr("d", diagonal);
@@ -141,10 +129,39 @@ function update(source) {
 
 // Toggle children.
 function toggle(d) {
+  if (d.children) { collapse(d); }
+  else if(d._children) { expand(d); }
+  update(d);
+
+  //find the path nodes
+  h_path = new Set();
+  p = d;
+  while (p) { h_path.add(p); p=p.parent; }
+
+  //find the target nodes
+  var len = 0;
+  while (vis.selectAll('path.link')[0][len]){
+    x = vis.selectAll('path.link')[0][len];
+    if(h_path.has(x['__data__'].target) && h_path.has(x['__data__'].source)){
+      x.style.stroke = "red";
+    }
+    else{
+      x.style.stroke = "black";
+    }
+    len = len + 1;
+  }
+}
+
+function collapse(d) {
   if (d.children) {
     d._children = d.children;
+    d._children.forEach(collapse);
     d.children = null;
-  } else {
+  }
+}
+
+function expand(d) {
+  if (d._children) {
     d.children = d._children;
     d._children = null;
   }
