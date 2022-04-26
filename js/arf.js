@@ -101,7 +101,7 @@ function update(source) {
         var o = {x: source.x0, y: source.y0};
         return diagonal({source: o, target: o});
       })
-    .style('stroke',"black")
+    .style('stroke',"#AAAAAA")
     .transition()
       .duration(duration)
       .attr("d", diagonal);
@@ -146,7 +146,7 @@ function toggle(d) {
       x.style.stroke = "red";
     }
     else{
-      x.style.stroke = "black";
+      x.style.stroke = "#AAAAAA";
     }
     len = len + 1;
   }
