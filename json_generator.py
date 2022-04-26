@@ -14,8 +14,8 @@ def process_folder(path, holder):
             holder['type'] = 'folder'
             holder["children"].append(child)
             process_folder(target, child)
-        elif os.path.splitext(file)[1] in {'.png', 'jpg'}:
-            holder['images'].append(file)
+        elif os.path.splitext(file)[1] in {'.png', '.jpg'}:
+            holder['images'].append(target)
 
 
 values = dict()
@@ -25,5 +25,5 @@ values['images'] = list()
 values['type'] = 'images'
 process_folder('Vehicles', values)
 json_object = json.dumps(values, indent=4)
-with open('myfile.json', 'w') as f:
+with open('arf.json', 'w') as f:
     print(json_object, file=f)
