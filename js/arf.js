@@ -5,8 +5,7 @@ var margin = [20, 120, 20, 140],
     duration = 1250,
     root;
 
-var tree = d3.layout.tree()
-    .size([height, width]);
+var tree = d3.layout.tree().size([height, width]);
 
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
@@ -22,18 +21,16 @@ d3.json("arf.json", function(json) {
   root.x0 = height / 2;
   root.y0 = 0;
 
-/*  function toggleAll(d) {
-    if (d.children) {
-      d.children.forEach(toggleAll);
-      toggle(d);
-    }
-  } */
+  //initially recursivily load all classes
+  build_complete_tree(root);
+
   root.children.forEach(collapse);
   update(root);
+  load_image(root);
 });
 
 function update(source) {
-  // var duration = d3.event && d3.event.altKey ? 5000 : 500;
+  // update the GUI styles
 
   // Compute the new tree layout.
   var nodes = tree.nodes(root).reverse();
@@ -55,10 +52,7 @@ function update(source) {
       .attr("r", 1e-6)
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
-  nodeEnter.append('a')
-      .attr("target", "_blank")
-      .attr('xlink:href', function(d) { return d.url; })
-      .append("svg:text")
+  nodeEnter.append("svg:text")
       .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
       .attr("dy", ".5em")
       .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
@@ -75,8 +69,7 @@ function update(source) {
       .attr("r", 6)
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
-  nodeUpdate.select("text")
-      .style("fill-opacity", 1);
+  nodeUpdate.select("text").style("fill-opacity", 1);
 
   // Transition exiting nodes to the parent's new position.
   var nodeExit = node.exit().transition()
@@ -132,7 +125,7 @@ function toggle(d) {
   if (d.children) { collapse(d); }
   else if(d._children) { expand(d); }
   update(d);
-  mark_path(d);
+  redPath(d);
 
   // remove all images
   gallery = document.getElementById("multimedia");
@@ -155,10 +148,13 @@ function expand(d) {
     d.children = d._children;
     d._children = null;
   }
+  if (d.parent){
+    expand(d.parent);
+  }
 }
 
-function mark_path(d){
-  //find the path nodes
+function redPath(d){
+  //Draw red path-only, from d to root
   h_path = new Set();
   p = d;
   while (p) { h_path.add(p); p=p.parent; }
@@ -182,14 +178,22 @@ function load_image(d){
   for (img_src in d['images']){
     var img = document.createElement('img');
     img.src = d['images'][img_src];
-    if(img.height >= img.width) img.height="330";
-    else img.widht = "250";
+    img.height="300";
     img.style.paddingBottom = "5px";
     img.style.paddingTop = "5px";
     img.style.paddingRight = "5px";
     img.style.paddingLeft = "5px";
     img.onclick = function(event) {
-      show_path(d);
+      expand(d);
+      update(d);
+      redPath(d);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // remove all images
+      gallery = document.getElementById("multimedia");
+      while (gallery.firstChild) {
+        gallery.removeChild(gallery.firstChild);
+      }
+      load_image(d);
     }
     gallery.appendChild(img);
 
@@ -200,15 +204,10 @@ function load_image(d){
 
 }
 
-function show_path(d){
-  p = d.parent;
-  while (p){
-    if(p._children){
-      p.children = p._children;
-      p._children = null;
-    }
-    p = p.parent;
+function build_complete_tree(p){
+  for (x in p.children){
+    console.log(p.children[x]);
+    build_complete_tree(p.children[x]);
+    update(p.children[x]);
   }
-  update(d);
-  mark_path(d);
 }
